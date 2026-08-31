@@ -42,8 +42,8 @@ Si utilizas Maven, agrega el driver de PostgreSQL en tu archivo `pom.xml`:
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.ejemplo</groupId>
-    <artifactId>gestion-usuarios</artifactId>
+    <groupId>com.mycompany</groupId>
+    <artifactId>TallerExpress</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
