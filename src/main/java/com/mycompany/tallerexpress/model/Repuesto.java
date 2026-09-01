@@ -73,7 +73,7 @@ public class Repuesto {
     
     
     public int getStockTotal() {
-        return stockDisponible;
+        return stockTotal;
     }
     
     public void setStockTotal(int stockTotal) {
@@ -117,7 +117,7 @@ public class Repuesto {
         this.Activo = Activo;
     }
 
-    public Date createdAt() {
+    public Date getCreatedAt() {
         return created;
     }
 
