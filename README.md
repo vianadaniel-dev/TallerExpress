@@ -63,6 +63,81 @@ Si utilizas Maven, agrega el driver de PostgreSQL en tu archivo `pom.xml`:
 </project>
 ```
 
+Inicializacion de Base de Datos en PGAdmin4
+```
+CREATE TABLE repuestos (
+    id SERIAL PRIMARY KEY,
+    codigo_referencia INT NOT NULL UNIQUE,
+    nombre VARCHAR(100) NOT NULL,
+    categoria VARCHAR(50) NOT NULL,
+    proveedor VARCHAR(100) NOT NULL,
+    stock_total INT NOT NULL DEFAULT 0,
+    stock_disponible INT NOT NULL DEFAULT 0,
+    precio_unitario DECIMAL(10, 2) NOT NULL,
+    activo BOOLEAN NOT NULL DEFAULT TRUE,
+    created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    -- Restricción para evitar que el stock disponible supere al stock total o sea negativo
+    CONSTRAINT check_stock_valido CHECK (stock_disponible >= 0 AND stock_disponible <= stock_total)
+);
+
+-- Tabla de Clientes
+CREATE TABLE clientes (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE
+);
+
+-- Tabla de Vehículos (Relacionada con Clientes)
+CREATE TABLE vehiculos (
+    id SERIAL PRIMARY KEY,
+    placa VARCHAR(10) NOT NULL UNIQUE, -- Valida placa única a nivel de DB
+    cliente_id INT NOT NULL,
+    created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_cliente FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE CASCADE
+);
+
+CREATE TABLE usuarios (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(100) NOT NULL,
+    role VARCHAR(20) NOT NULL, -- 'ADMIN' o 'RECEPCIONISTA'
+    estado VARCHAR(20) NOT NULL DEFAULT 'ACTIVO',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE ordenes_servicio (
+    id SERIAL PRIMARY KEY,
+    cliente_id INT NOT NULL,
+    vehiculo_id INT NOT NULL,
+    mecanico VARCHAR(100) NOT NULL,
+    fecha_ingreso TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    descripcion_problema TEXT NOT NULL,
+    diagnostico TEXT,
+    estado VARCHAR(20) NOT NULL DEFAULT 'PENDIENTE', -- 'PENDIENTE', 'EN_PROCESO', 'COMPLETADO', 'CANCELADO'
+    FOREIGN KEY (cliente_id) REFERENCES clientes(id),
+    FOREIGN KEY (vehiculo_id) REFERENCES vehiculos(id)
+);
+
+CREATE TABLE orden_repuestos (
+    orden_id INT NOT NULL,
+    repuesto_id INT NOT NULL,
+    cantidad INT NOT NULL,
+    precio_unitario DECIMAL(10,2) NOT NULL,
+    PRIMARY KEY (orden_id, repuesto_id),
+    FOREIGN KEY (orden_id) REFERENCES ordenes_servicio(id) ON DELETE CASCADE,
+    FOREIGN KEY (repuesto_id) REFERENCES repuestos(id)
+);
+
+Credencial!
+INSERT INTO usuarios (username, password, role, estado, created_at) 
+VALUES ('admin', 'admin123', 'ADMIN', 'ACTIVO', CURRENT_TIMESTAMP);
+
+INSERT INTO usuarios (username, password, role, estado, created_at) 
+VALUES ('recepcion', '12345', 'RECEPCIONISTA', 'ACTIVO', CURRENT_TIMESTAMP);
+
+```
+
 ## 🔗 Formato de la URL de conexión JDBC
 La URL de conexión utiliza el siguiente formato:
 ```
@@ -82,11 +157,100 @@ jdbc:postgresql://HOST:PUERTO/BASE_DE_DATOS
 
 
 ## 📷 Capturas de pantalla de la Interfaz.
+<img width="480" height="270" alt="image" src="https://github.com/user-attachments/assets/11cc1ad5-266c-4d85-8992-deee2597ddff" />
 
 ## Diagramas de Clases. 
+1. Diagrama de Clases (UML)
+Este diagrama muestra cómo interactúan la Vista, los Controladores, la cadena de Decoradores de Servicio y la capa de Persistencia (Repositorios):
+
+```
+                      +-------------------+
+                      |   TallerExpress   |
+                      |      (Main)       |
+                      +---------+---------+
+                                |
+             +------------------+------------------+
+             |                                     |
+             v                                     v
+     +---------------+                     +---------------+
+     |   LoginView   |                     |OrdenServicioView
+     +-------+-------+                     +-------+-------+
+             |                                     |
+             v                                     v
+  +--------------------+               +-----------------------+
+  | UsuarioController  |               |  OrdenServicioCtrl   |
+  +----------+---------+               +-----------+-----------+
+             |                                     |
+             v                                     v
+   <<interface>>                        <<interface>>
+  +------------------+                 +-----------------------+
+  |  UsuarioService  |                 | OrdenServicioService  |
+  +------------------+                 +-----------------------+
+           ^                                       ^
+           |                                       |
+ +---------+------------------+                    |
+ |                            |                    |
+ |  +----------------------+  |                    |
+ |  | HttpLoggerDecorator  |  |                    |
+ |  +----------+-----------+  |                    |
+ |             | (wraps)      |                    |
+ |             v              |                    |
+ |  +----------------------+  |                    |
+ |--|DefaultValuesDecorator|  |                    |
+ |  +----------+-----------+  |                    |
+ |             | (wraps)      |                    |
+ |             v              |                    |
+ |  +----------------------+  |            +-------+---------------+
+ +--|  UsuarioServiceImpl  |  |            |OrdenServicioServiceImpl|
+    +----------+-----------+  |            +-----------+-----------+
+               |              |                        |
+               v              +                        v
+      <<interface>>                              <<interface>>
+  +-------------------+                      +-------------------+
+  | UsuarioRepository |                      | OrdenServicioRepo |
+  +---------+---------+                      +---------+---------+
+            ^                                          ^
+            |                                          |
+  +---------+---------+                      +---------+---------+
+  |UsuarioRepoImpl    |                      |OrdenServicioRepoImpl|
+  |  (PostgreSQL)     |                      |   (PostgreSQL)    |
+  +-------------------+                      +-------------------+
+```
+
 
 ## Diagrama de Casos de Uso. 
-
+```
+                        +-------------------------------------------------------------+
+                        |                      Taller Express                         |
+                        +-------------------------------------------------------------+
+                                                       |
+     +-------------------+                             |                             +--------------------+
+     |                   |--- (CU01: Iniciar Sesión) --+                             |                    |
+     |                   |                             |                             |                    |
+     |                   |--- (CU02: Registrar Cliente)+                             |                    |
+     |                   |                             |                             |                    |
+     |                   |--- (CU03: Asociar Vehículo) +                             |                    |
+     |   Recepcionista   |    <<include>>              |                             |                    |
+     |     (Actor)       |-----> (CU04: Crear Orden de Servicio)                     |     PostgreSQL     |
+     |                   |          |                  |                             |  (Sistema Externo) |
+     |                   |          |                  |                             |                    |
+     |                   |          | <<include>>      |                             |                    |
+     |                   |          v                  |                             |                    |
+     |                   |--- (CU05: Agregar Repuestos a Orden)                      |                    |
+     |                   |                             |                             |                    |
+     |                   |--- (CU06: Consultar Historial por Vehículo)               |                    |
+     +-------------------+                             |                             +--------------------+
+               ^                                       |                                       ^
+               | (Hereda)                              |                                       |
+               |                                       |                                       |
+     +-------------------+                             |                                       |
+     |      Admin        |--- (CU07: Inactivar Cliente)+---------------------------------------+
+     |     (Actor)       |                             | (Persistencia de Datos)
+     |                   |--- (CU08: Gestionar Inventario Repuestos)
+     +-------------------+                             |
+                                                       |
+                        +-------------------------------------------------------------+
+```
 
 ## 📄 Licencia
 
