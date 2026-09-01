@@ -26,7 +26,9 @@ public class UsuarioRepositoryImpl implements UsuarioRepository {
             statement.setString(2, usuario.getPassword());
             statement.setString(3, usuario.getRole().name()); // Guarda el valor String del Enum (ADMIN / RECEPCIONISTA)
             statement.setString(4, usuario.getEstado());
-            statement.setTimestamp(5, new Timestamp(usuario.getCreatedAt().getTime()));
+            java.util.Date created = usuario.getCreatedAt();
+            java.sql.Timestamp ts = created != null ? new Timestamp(created.getTime()) : new Timestamp(System.currentTimeMillis());
+            statement.setTimestamp(5, ts);
 
             statement.executeUpdate();
 

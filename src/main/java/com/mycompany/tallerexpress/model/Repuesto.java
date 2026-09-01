@@ -12,7 +12,7 @@ public class Repuesto {
     private int stockTotal;
     private int stockDisponible;
     private double precioUnitario;
-    private boolean Activo;
+    private boolean activo;
     private Date created;
 
     public Repuesto() {
@@ -27,7 +27,7 @@ public class Repuesto {
         setStockDisponible(stockDisponible);
         setPrecioUnitario(precioUnitario);
         setActivo(Activo);
-        setCreated(created);
+        setCreatedAt(created);
     }
 
     public int getId() {
@@ -95,7 +95,7 @@ public class Repuesto {
         if (stockDisponible < 0) {
             throw new StockMayorIgualCeroException("El stock disponible no puede ser negativo.");
         }
-        if (stockDisponible > this.stockTotal) {
+        if (this.stockTotal > 0 && stockDisponible > this.stockTotal) {
             throw new IllegalArgumentException("El stock disponible no puede ser mayor al stock total.");
         }
         this.stockDisponible = stockDisponible;
@@ -110,30 +110,25 @@ public class Repuesto {
     }
 
     public boolean isActivo() {
-        return Activo;
+        return activo;
     }
 
     public void setActivo(boolean Activo) {
-        this.Activo = Activo;
+        this.activo = Activo;
     }
 
     public Date getCreatedAt() {
         return created;
     }
 
-    public void setCreated(Date created) {
+    public void setCreatedAt(Date created) {
         this.created = created;
     }
 
    
 
     public void mostrarInformacion() {
-        System.out.println("Hola soy to repuesto.");
-        System.out.println("Codigo: " + getCodigoReferencia());
-        System.out.println("Nombre: " + getNombre());
-        System.out.println("Precio Base: " + getPrecioUnitario());
-        System.out.println("Cantidad Disponible " + getStockDisponible());
-        System.out.println("Activo: " + isActivo());
+        System.out.println("Repuesto{codigo=" + getCodigoReferencia() + ", nombre=" + getNombre() + ", precio=" + getPrecioUnitario() + ", disponible=" + getStockDisponible() + ", activo=" + isActivo() + "}");
     }
 
 }

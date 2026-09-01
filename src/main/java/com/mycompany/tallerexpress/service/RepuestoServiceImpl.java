@@ -22,6 +22,14 @@ public class RepuestoServiceImpl implements RepuestoService {
         if (repuesto.getStockTotal() < 0 || repuesto.getStockDisponible() < 0) {
             throw new StockMayorIgualCeroException("El stock no puede ser un valor negativo.");
         }
+        // Asegurar coherencia: stockDisponible no puede ser mayor que stockTotal
+        if (repuesto.getStockTotal() > 0 && repuesto.getStockDisponible() > repuesto.getStockTotal()) {
+            repuesto.setStockDisponible(repuesto.getStockTotal());
+        }
+        // Asegurar fecha creada
+        if (repuesto.getCreatedAt() == null) {
+            repuesto.setCreatedAt(new java.util.Date());
+        }
         return repuestoRepository.guardar(repuesto);
     }
 
@@ -29,6 +37,9 @@ public class RepuestoServiceImpl implements RepuestoService {
     public boolean actualizar(Repuesto repuesto) throws CodigoRepuestoUnicoException, StockMayorIgualCeroException {
         if (repuesto.getStockTotal() < 0 || repuesto.getStockDisponible() < 0) {
             throw new StockMayorIgualCeroException("El stock no puede ser un valor negativo.");
+        }
+        if (repuesto.getStockTotal() > 0 && repuesto.getStockDisponible() > repuesto.getStockTotal()) {
+            repuesto.setStockDisponible(repuesto.getStockTotal());
         }
         return repuestoRepository.actualizar(repuesto);
     }

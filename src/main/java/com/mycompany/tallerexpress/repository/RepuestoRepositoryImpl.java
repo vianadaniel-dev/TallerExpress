@@ -33,7 +33,9 @@ statement.setInt(5, repuesto.getStockTotal());       // Nuevo parámetro
 statement.setInt(6, repuesto.getStockDisponible());  // Parámetro existente
 statement.setDouble(7, repuesto.getPrecioUnitario());
 statement.setBoolean(8, repuesto.isActivo());
-statement.setTimestamp(9, new java.sql.Timestamp(repuesto.createdAt().getTime()));
+            java.util.Date created = repuesto.getCreatedAt();
+            java.sql.Timestamp ts = created != null ? new java.sql.Timestamp(created.getTime()) : new java.sql.Timestamp(System.currentTimeMillis());
+            statement.setTimestamp(9, ts);
 
         statement.executeUpdate();
         return repuesto;
@@ -130,7 +132,7 @@ public List<Repuesto> listarPorProveedor(String proveedor) {
         repuesto.setStockDisponible(rs.getInt("stock_disponible"));
         repuesto.setPrecioUnitario(rs.getDouble("precio_unitario"));
         repuesto.setActivo(rs.getBoolean("activo"));
-        repuesto.setCreated(rs.getTimestamp("created"));
+        repuesto.setCreatedAt(rs.getTimestamp("created"));
 
         return repuesto;
     }
