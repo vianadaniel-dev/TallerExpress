@@ -158,6 +158,10 @@ jdbc:postgresql://HOST:PUERTO/BASE_DE_DATOS
 
 ## 📷 Capturas de pantalla de la Interfaz.
 <img width="480" height="270" alt="image" src="https://github.com/user-attachments/assets/11cc1ad5-266c-4d85-8992-deee2597ddff" />
+<img width="480" height="270" alt="image" src="https://github.com/user-attachments/assets/39a3a459-2c6b-4445-a2a6-f4af2a2bb2be" />
+<img width="480" height="270" alt="image" src="https://github.com/user-attachments/assets/2f71d33a-a039-4ebb-a4e5-b9806da5584e" />
+<img width="480" height="270" alt="image" src="https://github.com/user-attachments/assets/5dd33956-5668-4fe7-bb8c-ff8c82f0342b" />
+<img width="480" height="270" alt="image" src="https://github.com/user-attachments/assets/19f143ad-38e0-45aa-a2f2-90cd0f07955e" />
 
 ## Diagramas de Clases. 
 1. Diagrama de Clases (UML)
