@@ -2,25 +2,17 @@
 package com.mycompany.tallerexpress.model;
 
 
-public class ClienteVehiculo extends Cliente {
-    
+public class ClienteVehiculo {
+    private int id;
     private String placa;
+    private int clienteId;
 
-    public ClienteVehiculo() {
-    }
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
 
-    public ClienteVehiculo(String placa, int id, String nombre, String email) {
-        super(id, nombre, email);
-        setPlaca(placa);
-    }
+    public String getPlaca() { return placa; }
+    public void setPlaca(String placa) { this.placa = placa; }
 
-    public String getPlaca() {
-        return placa;
-    }
-
-    public void setPlaca(String placa) {
-        this.placa = placa;
-    }
-
-    
+    public int getClienteId() { return clienteId; }
+    public void setClienteId(int clienteId) { this.clienteId = clienteId; }
 }

@@ -1,13 +1,15 @@
 package com.mycompany.tallerexpress.model;
 
+import com.mycompany.tallerexpress.exceptions.StockMayorIgualCeroException;
 import java.util.Date;
 
 public class Repuesto {
-
-    private String codigoReferencia;
+    private int id;
+    private int codigoReferencia;
     private String nombre;
     private String categoria;
     private String proveedor;
+    private int stockTotal;
     private int stockDisponible;
     private double precioUnitario;
     private boolean Activo;
@@ -16,22 +18,31 @@ public class Repuesto {
     public Repuesto() {
     }
 
-    public Repuesto(String codigoReferencia, String nombre, String categoria, String proveedor, int stockDisponible, double precioUnitario, boolean Activo, Date created) {
+    public Repuesto(int codigoReferencia, String nombre, String categoria, String proveedor, int stockTotal, int stockDisponible, double precioUnitario, boolean Activo, Date created) {
         setCodigoReferencia(codigoReferencia);
         setNombre(nombre);
         setCategoria(categoria);
         setProveedor(proveedor);
+        setStockTotal(stockTotal);
         setStockDisponible(stockDisponible);
         setPrecioUnitario(precioUnitario);
         setActivo(Activo);
         setCreated(created);
     }
 
-    public String getCodigoReferencia() {
+    public int getId() {
+        return id;
+    }
+    
+    public void setId(int id) {
+        this.id = id;
+    }
+    
+    public int getCodigoReferencia() {
         return codigoReferencia;
     }
 
-    public void setCodigoReferencia(String codigoReferencia) {
+    public void setCodigoReferencia(int codigoReferencia) {
         this.codigoReferencia = codigoReferencia;
     }
 
@@ -58,13 +69,35 @@ public class Repuesto {
     public void setProveedor(String proveedor) {
         this.proveedor = proveedor;
     }
+    
+    
+    
+    public int getStockTotal() {
+        return stockDisponible;
+    }
+    
+    public void setStockTotal(int stockTotal) {
+        if (stockTotal < 0) {
+            throw new IllegalArgumentException("El stock total no puede ser negativo.");
+        }
+        if (stockTotal < this.stockDisponible) {
+            throw new IllegalArgumentException("El stock total no puede ser menor al stock disponible actual.");
+        }
+        this.stockTotal = stockTotal;
+    }
 
     public int getStockDisponible() {
         return stockDisponible;
     }
 
+    // Registrar o actualizar el stock disponible
     public void setStockDisponible(int stockDisponible) {
-
+        if (stockDisponible < 0) {
+            throw new StockMayorIgualCeroException("El stock disponible no puede ser negativo.");
+        }
+        if (stockDisponible > this.stockTotal) {
+            throw new IllegalArgumentException("El stock disponible no puede ser mayor al stock total.");
+        }
         this.stockDisponible = stockDisponible;
     }
 
@@ -92,9 +125,7 @@ public class Repuesto {
         this.created = created;
     }
 
-    public int stockTotal() {
-        return stockDisponible;
-    }
+   
 
     public void mostrarInformacion() {
         System.out.println("Hola soy to repuesto.");
@@ -104,7 +135,5 @@ public class Repuesto {
         System.out.println("Cantidad Disponible " + getStockDisponible());
         System.out.println("Activo: " + isActivo());
     }
-    
-    
 
 }
